@@ -1,4 +1,4 @@
-package com.example.RealTime_TicTacToe;
+package com.example.TikTacToe;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

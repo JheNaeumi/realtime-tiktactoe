@@ -1,4 +1,4 @@
-package com.example.RealTime_TicTacToe;
+package com.example.TikTacToe;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
