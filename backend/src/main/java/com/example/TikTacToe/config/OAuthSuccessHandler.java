@@ -20,7 +20,7 @@ public class OAuthSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
 
         this.setAlwaysUseDefaultTargetUrl(true);
-        this.setDefaultTargetUrl("http://localhost:8080/home");
+        this.setDefaultTargetUrl("http://localhost:5173/");
         super.onAuthenticationSuccess(request, response, authentication);
     }
 }
