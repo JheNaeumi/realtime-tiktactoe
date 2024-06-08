@@ -1,8 +1,8 @@
 package com.example.TikTacToe.controller;
 
-import com.example.TikTacToe.dto.playerDto;
-import com.example.TikTacToe.entity.GameState;
-import com.example.TikTacToe.entity.MoveMessage;
+import com.example.TikTacToe.dto.PlayerDto;
+import com.example.TikTacToe.dto.GameStateDto;
+import com.example.TikTacToe.dto.MoveMessageDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,13 +18,13 @@ import java.util.UUID;
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
 
-    private GameState gameState = new GameState();
+    private GameStateDto gameState = new GameStateDto();
     private String playerX;
     private String playerO;
 
     @MessageMapping("/move")
     @SendTo("/topic/game")
-    public ResponseEntity<GameState> makeMove(MoveMessage message) {
+    public ResponseEntity<GameStateDto> makeMove(MoveMessageDto message) {
         String playerId = message.getPlayerId();
         int row = message.getRow();
         int col = message.getCol();
@@ -49,15 +49,15 @@ public class GameController {
     }
 
     @GetMapping("/api/gameState")
-    public ResponseEntity<GameState> getGameState() {
+    public ResponseEntity<GameStateDto> getGameState() {
         logger.info("Fetching initial game state: " + gameState);
         return new ResponseEntity<>(gameState, HttpStatus.OK);
     }
 
     @GetMapping("/api/joinGame")
-    public ResponseEntity<playerDto> joinGame() {
+    public ResponseEntity<PlayerDto> joinGame() {
         String playerId = UUID.randomUUID().toString();
-        playerDto playerDTO = new playerDto();
+        PlayerDto playerDTO = new PlayerDto();
         playerDTO.setPlayerId(playerId);
 
         if (playerX == null) {
