@@ -1,15 +1,11 @@
+import axios from 'axios';
 
-//TODO Use Axios
+const REST_API_URL = 'http://localhost:8080/api'
+
 export const getGameState = async () => {
-    const response = await fetch('http://localhost:8080/api/gameState');
-    return await response.json();
+    return axios.get(REST_API_URL + '/gameState');
 };
 
 export const joinGame = async () => {
-    const response = await fetch('http://localhost:8080/api/joinGame');
-    if (!response.ok) {
-        throw new Error('Failed to join game');
-    }
-    console.log(response.body)
-    return await response.body;
+    return axios.get(REST_API_URL + '/joinGame');
 };
