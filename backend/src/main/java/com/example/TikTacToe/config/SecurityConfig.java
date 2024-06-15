@@ -1,6 +1,8 @@
 package com.example.TikTacToe.config;
 
 
+import com.example.TikTacToe.entity.Role;
+import com.example.TikTacToe.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +27,10 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((request)->
-                        request.anyRequest().authenticated()
+                        request
+                                .requestMatchers("/topic/**", "/app/**", "/ws/**").hasAnyAuthority(Role.ROLE_USER.toString())
+                                .anyRequest().authenticated()
+
                 )
                 .oauth2Login(oath2 -> {
                     oath2.loginPage("/login").permitAll();
@@ -38,7 +43,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173/"));
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true);
