@@ -1,9 +1,10 @@
+
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 let stompClient = null;
 
-export const connect = () => {
+export const connect = (gameId) => {
     const socket = new SockJS('http://localhost:8080/tictactoe');
     stompClient = new Client({
         webSocketFactory: () => socket,
@@ -12,6 +13,7 @@ export const connect = () => {
 
     stompClient.onConnect = () => {
         console.log('Connected to server');
+        subscribeToGameUpdates(gameId);
     };
 
     stompClient.onStompError = (frame) => {
@@ -22,22 +24,22 @@ export const connect = () => {
     stompClient.activate();
 };
 
-export const subscribeToGameUpdates = (callback) => {
+export const subscribeToGameUpdates = (gameId, callback) => {
     if (stompClient && stompClient.connected) {
-        stompClient.subscribe('/topic/game', callback);
-    } 
-    else {
+        stompClient.subscribe(`/topic/game/${gameId}`, callback);
+    } else {
         stompClient.onConnect = () => {
-            stompClient.subscribe('/topic/game', callback);
+            stompClient.subscribe(`/topic/game/${gameId}`, callback);
         };
     }
 };
 
-export const sendMove = (playerId, from, row, col) => {
+export const sendMove = (gameId, playerId, from, row, col) => {
     if (stompClient && stompClient.connected) {
         stompClient.publish({
-            destination: '/app/move',
+            destination: `/app/move/${gameId}`,
             body: JSON.stringify({ playerId, from, row, col }),
         });
     }
 };
+
