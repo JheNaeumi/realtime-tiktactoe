@@ -1,0 +1,10 @@
+spring.security.oauth2.client.registration.google.client-id= //client-id from google
+spring.security.oauth2.client.registration.google.client-secret= //client-secret from google
+
+spring.datasource.url= // sql hostname
+spring.datasource.username=// sql username
+spring.datasource.password=// sql password
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+spring.jpa.hibernate.ddl-auto=update
+
+spring.application.name=RealTime-TicTacToe
