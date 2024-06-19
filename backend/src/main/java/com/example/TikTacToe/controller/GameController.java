@@ -4,7 +4,8 @@ import com.example.TikTacToe.dto.PlayerDto;
 import com.example.TikTacToe.dto.GameStateDto;
 import com.example.TikTacToe.dto.MoveMessageDto;
 import com.example.TikTacToe.entity.Game;
-import com.example.TikTacToe.service.impl.GameService;
+import com.example.TikTacToe.service.GameService;
+import com.example.TikTacToe.service.impl.GameServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class GameController {
 
 
     @Autowired
-    private GameService gameService;
+    private GameService gameServiceImpl;
 
     @MessageMapping("/move/{gameId}")
     @SendTo("/topic/game/{gameId}")
@@ -36,7 +37,7 @@ public class GameController {
         int col = message.getCol();
         char player = message.getFrom();
 
-        Optional<Game> gameOpt = gameService.getGameById(gameId);
+        Optional<Game> gameOpt = gameServiceImpl.getGameById(gameId);
         if (gameOpt.isPresent()) {
             Game game = gameOpt.get();
             GameStateDto gameState = game.getGameState();
@@ -69,7 +70,7 @@ public class GameController {
 
     @GetMapping("/api/gameState")
     public ResponseEntity<GameStateDto> getGameState(@RequestParam String gameId) {
-        Optional<Game> gameOpt = gameService.getGameById(gameId);
+        Optional<Game> gameOpt = gameServiceImpl.getGameById(gameId);
         if (gameOpt.isPresent()) {
             GameStateDto gameState = gameOpt.get().getGameState();
             logger.info("Fetching game state for game " + gameId + ": " + gameState);
@@ -84,7 +85,7 @@ public class GameController {
         PlayerDto playerDTO = new PlayerDto();
         playerDTO.setPlayerId(playerId);
 
-        Game availableGame = gameService.getAvailableGame();
+        Game availableGame = gameServiceImpl.getAvailableGame();
 
         if (availableGame.getPlayerX() == null) {
             availableGame.setPlayerX(playerId);
