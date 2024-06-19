@@ -2,6 +2,7 @@ package com.example.TikTacToe.service.impl;
 
 
 import com.example.TikTacToe.entity.Game;
+import com.example.TikTacToe.service.GameService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GameService {
+public class GameServiceImpl implements GameService {
     private List<Game> games = new ArrayList<>();
 
     public Game getAvailableGame() {
