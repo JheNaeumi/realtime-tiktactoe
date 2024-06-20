@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Board from './Board';
-import { connect, subscribeToGameUpdates, sendMove } from '../service/websocket';
+import { connect, subscribeToGameUpdates, sendMove, deactivate } from '../service/websocket';
 import { getGameState, joinGame } from '../service/api';
 
 const Game = () => {
@@ -13,10 +13,20 @@ const Game = () => {
 
     useEffect(() => {
         if (opponentFound && gameId) {
-            connect(gameId);
-            onConnected();
-            initGameState(gameId);
+            (async () => {
+                try {
+                    await connect(gameId);
+                    onConnected();
+                    await initGameState(gameId);
+                } catch (error) {
+                    console.error('Connection error:', error);
+                }
+            })();
         }
+        // Cleanup on unmount
+        return () => {
+            deactivate();
+        };
     }, [opponentFound, gameId]);
 
     const onConnected = () => {
@@ -24,7 +34,7 @@ const Game = () => {
             subscribeToGameUpdates(gameId, (message) => {
                 const receivedGameState = JSON.parse(message.body);
                 setGameState(receivedGameState.body);
-                console.log(receivedGameState);
+                console.log("New game state",receivedGameState);
             });
         } catch (error) {
             console.log(error);
