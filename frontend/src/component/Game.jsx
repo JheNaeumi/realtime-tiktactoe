@@ -12,6 +12,7 @@ const Game = () => {
     const [gameId, setGameId] = useState(null);
 
     useEffect(() => {
+       
         if (opponentFound && gameId) {
             (async () => {
                 try {
@@ -28,6 +29,7 @@ const Game = () => {
             deactivate();
         };
     }, [opponentFound, gameId]);
+    
 
     const onConnected = () => {
         try {
@@ -80,6 +82,7 @@ const Game = () => {
     const handleFindOpponent = () => {
         userJoinsGame();
     }
+   
 
     return (
         <div className="App flex flex-col items-center justify-center min-h-screen bg-blue-50 p-4">
