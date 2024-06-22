@@ -2,17 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import Board from './Board';
 import { connect, subscribeToGameUpdates, sendMove, deactivate } from '../service/websocket';
-import { getGameState, joinGame } from '../service/api';
+import { getGameState, joinGame, loggedIn } from '../service/api';
+import { useNavigate } from 'react-router-dom';
 
 const Game = () => {
+    const navigate = useNavigate();
     const [gameState, setGameState] = useState(null);
     const [currentPlayer, setCurrentPlayer] = useState('');
     const [playerId, setPlayerId] = useState(null);
     const [opponentFound, setOpponentFound] = useState(false);
     const [gameId, setGameId] = useState(null);
-
+    const [isAuth, setAuth] = useState(false);
     useEffect(() => {
-       
+       checkauth();
         if (opponentFound && gameId) {
             (async () => {
                 try {
@@ -30,7 +32,18 @@ const Game = () => {
         };
     }, [opponentFound, gameId]);
     
-
+    const checkauth = async() =>{
+        try {
+          const response= await loggedIn();
+          if( response.status === 200 && response.data === "COOKIE_IS_VALID"){
+            setAuth(true)
+          }else{
+            navigate("/error")
+          }
+        } catch (error) {
+          navigate("/error")
+        }
+      }
     const onConnected = () => {
         try {
             subscribeToGameUpdates(gameId, (message) => {
@@ -82,7 +95,10 @@ const Game = () => {
     const handleFindOpponent = () => {
         userJoinsGame();
     }
-   
+   if(!isAuth){
+    return "Error 404 Unauthorized";
+    
+   }
 
     return (
         <div className="App flex flex-col items-center justify-center min-h-screen bg-blue-50 p-4">
