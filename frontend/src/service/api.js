@@ -14,6 +14,6 @@ export const getGameState = async (gameId) => {
 export const joinGame = async () => {
     return  instance.get('/joinGame');
 };
-export const loggedIn =  () => {
+export const loggedIn = async () => {
     return instance.get ('/loggedIn')
 }
