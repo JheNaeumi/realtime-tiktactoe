@@ -96,8 +96,7 @@ const Game = () => {
         userJoinsGame();
     }
    if(!isAuth){
-    return "Error 404 Unauthorized";
-    
+    return;
    }
 
     return (
