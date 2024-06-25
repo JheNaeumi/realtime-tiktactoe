@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     @GetMapping("/api/loggedIn")
-    public ResponseEntity<?> isLoggedIn () {
+    public ResponseEntity<?> isLoggedIn () throws Exception {
         return new ResponseEntity<>("COOKIE_IS_VALID", HttpStatus.OK);
     }
 }
