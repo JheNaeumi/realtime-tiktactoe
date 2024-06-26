@@ -89,9 +89,11 @@ public class GameController {
 
         if (availableGame.getPlayerX() == null) {
             availableGame.setPlayerX(playerId);
+            gameServiceImpl.saveGame(availableGame);
             playerDTO.setSymbol("X");
         } else if (availableGame.getPlayerO() == null) {
             availableGame.setPlayerO(playerId);
+            gameServiceImpl.saveGame(availableGame);
             playerDTO.setSymbol("O");
         } else {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
