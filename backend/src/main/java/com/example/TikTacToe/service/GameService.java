@@ -12,4 +12,8 @@ public interface GameService {
     Optional<Game> getGameById(String gameId);
 
     List<Game> getGames();
+
+    void removeGameIfNotInUse();
+
+    void saveGame(Game game);
 }
