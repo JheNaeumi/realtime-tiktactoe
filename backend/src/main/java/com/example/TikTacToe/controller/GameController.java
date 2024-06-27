@@ -4,8 +4,11 @@ import com.example.TikTacToe.dto.PlayerDto;
 import com.example.TikTacToe.dto.GameStateDto;
 import com.example.TikTacToe.dto.MoveMessageDto;
 import com.example.TikTacToe.entity.Game;
+import com.example.TikTacToe.entity.GameState;
+import com.example.TikTacToe.repository.GameRepository;
 import com.example.TikTacToe.service.GameService;
 import com.example.TikTacToe.service.impl.GameServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +25,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
 
 
-    @Autowired
-    private GameService gameServiceImpl;
+
+    private  final GameServiceImpl gameServiceImpl;
+
+    private final GameRepository gameRepository;
 
     @MessageMapping("/move/{gameId}")
     @SendTo("/topic/game/{gameId}")
@@ -37,16 +43,19 @@ public class GameController {
         int col = message.getCol();
         char player = message.getFrom();
 
-        Optional<Game> gameOpt = gameServiceImpl.getGameById(gameId);
-        if (gameOpt.isPresent()) {
-            Game game = gameOpt.get();
-            GameStateDto gameState = game.getGameState();
+        //Optional<Game> gameOpt = gameServiceImpl.getGameById(gameId);
+        Game game = gameServiceImpl.getGameById(gameId);
+        if (game!=null) {
+            //GameState newState = new GameState();
+            GameState gameState = game.getGameState();
 
+            //logger.info("newState" + newState.getBoardArray() + "gameState" + gameState.getBoardArray());
             if ((playerId.equals(game.getPlayerX()) || playerId.equals(game.getPlayerO())) &&
-                    gameState.getBoard()[row][col] == '\0' &&
-                    gameState.getCurrentPlayer() == player) {
-
-                gameState.getBoard()[row][col] = player;
+                    (gameState.getBoardArray()[row][col] == '\0') &&
+                    (gameState.getCurrentPlayer() == player)) {
+                char[][] boardArray = new char[3][3];
+                boardArray[row][col] = player;
+                gameState.setBoardArray(boardArray);
                 if (checkWin(gameState, row, col)) {
                     gameState.setStatusMessage(player + " wins!");
                     gameState.setCurrentPlayer(' ');
@@ -56,9 +65,10 @@ public class GameController {
                 } else {
                     gameState.setCurrentPlayer(player == 'X' ? 'O' : 'X');
                 }
-
+                //game.setGameState(gameState);
+                //gameServiceImpl.saveGame(game);
                 logger.info("Sending game state for game " + gameId + ": " + gameState);
-                return new ResponseEntity<>(gameState, HttpStatus.OK);
+                return new ResponseEntity<>(GameStateDto.fromEntity(gameState), HttpStatus.OK);
             }
 
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -70,11 +80,11 @@ public class GameController {
 
     @GetMapping("/api/gameState")
     public ResponseEntity<GameStateDto> getGameState(@RequestParam String gameId) {
-        Optional<Game> gameOpt = gameServiceImpl.getGameById(gameId);
-        if (gameOpt.isPresent()) {
-            GameStateDto gameState = gameOpt.get().getGameState();
-            logger.info("Fetching game state for game " + gameId + ": " + gameState);
-            return new ResponseEntity<>(gameState, HttpStatus.OK);
+        Game game = gameServiceImpl.getGameById(gameId);
+        if (game!=null) {
+            GameState gameState = game.getGameState();
+            logger.info("Fetching game state for game " + gameId + ": " + gameState.getBoard());
+            return new ResponseEntity<>(GameStateDto.fromEntity(gameState), HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -89,12 +99,12 @@ public class GameController {
 
         if (availableGame.getPlayerX() == null) {
             availableGame.setPlayerX(playerId);
-            gameServiceImpl.saveGame(availableGame);
             playerDTO.setSymbol("X");
+            gameServiceImpl.saveGame(availableGame);
         } else if (availableGame.getPlayerO() == null) {
             availableGame.setPlayerO(playerId);
-            gameServiceImpl.saveGame(availableGame);
             playerDTO.setSymbol("O");
+            gameServiceImpl.saveGame(availableGame);
         } else {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
@@ -104,8 +114,8 @@ public class GameController {
         return new ResponseEntity<>(playerDTO, HttpStatus.OK);
     }
 
-    private boolean checkWin(GameStateDto gameState, int row, int col) {
-        char[][] board = gameState.getBoard();
+    private boolean checkWin(GameState gameState, int row, int col) {
+        char[][] board = gameState.getBoardArray();
         char player = board[row][col];
 
         // Check row
@@ -119,8 +129,8 @@ public class GameController {
         return false;
     }
 
-    private boolean checkDraw(GameStateDto gameState) {
-        char[][] board = gameState.getBoard();
+    private boolean checkDraw(GameState gameState) {
+        char[][] board = gameState.getBoardArray();
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (board[i][j] == '\0') {
