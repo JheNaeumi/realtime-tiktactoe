@@ -2,13 +2,14 @@ package com.example.TikTacToe.service.impl;
 
 
 import com.example.TikTacToe.entity.Game;
+import com.example.TikTacToe.entity.GameState;
 import com.example.TikTacToe.repository.GameRepository;
 import com.example.TikTacToe.service.GameService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,14 +25,12 @@ public class GameServiceImpl implements GameService {
                 return game;
             }
         }
-        Game newGame = new Game();
-        gameRepository.save(newGame);
-        return newGame;
+        return new Game();
     }
 
     @Override
-    public Optional<Game> getGameById(String gameId) {
-        return gameRepository.findByGameId(gameId);
+    public Game getGameById(String gameId) {
+        return gameRepository.findByGameId(gameId).orElseThrow(()-> new RuntimeException("error getting gameID"));
     }
 
     @Override
