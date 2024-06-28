@@ -8,6 +8,7 @@ import com.example.TikTacToe.entity.GameState;
 import com.example.TikTacToe.repository.GameRepository;
 import com.example.TikTacToe.service.GameService;
 import com.example.TikTacToe.service.impl.GameServiceImpl;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class GameController {
 
     private final GameRepository gameRepository;
 
+    @Transactional
     @MessageMapping("/move/{gameId}")
     @SendTo("/topic/game/{gameId}")
     public ResponseEntity<GameStateDto> makeMove(@DestinationVariable String gameId, MoveMessageDto message) {
@@ -43,17 +45,14 @@ public class GameController {
         int col = message.getCol();
         char player = message.getFrom();
 
-        //Optional<Game> gameOpt = gameServiceImpl.getGameById(gameId);
+
         Game game = gameServiceImpl.getGameById(gameId);
         if (game!=null) {
-            //GameState newState = new GameState();
             GameState gameState = game.getGameState();
-
-            //logger.info("newState" + newState.getBoardArray() + "gameState" + gameState.getBoardArray());
             if ((playerId.equals(game.getPlayerX()) || playerId.equals(game.getPlayerO())) &&
                     (gameState.getBoardArray()[row][col] == '\0') &&
                     (gameState.getCurrentPlayer() == player)) {
-                char[][] boardArray = new char[3][3];
+                char[][] boardArray = gameState.getBoardArray();
                 boardArray[row][col] = player;
                 gameState.setBoardArray(boardArray);
                 if (checkWin(gameState, row, col)) {
@@ -65,9 +64,9 @@ public class GameController {
                 } else {
                     gameState.setCurrentPlayer(player == 'X' ? 'O' : 'X');
                 }
-                //game.setGameState(gameState);
-                //gameServiceImpl.saveGame(game);
-                logger.info("Sending game state for game " + gameId + ": " + gameState);
+                game.setGameState(gameState);
+                gameServiceImpl.saveGame(game);
+                logger.info("Sending game state for game " + gameId + ": " + gameState.getBoard());
                 return new ResponseEntity<>(GameStateDto.fromEntity(gameState), HttpStatus.OK);
             }
 
@@ -83,7 +82,8 @@ public class GameController {
         Game game = gameServiceImpl.getGameById(gameId);
         if (game!=null) {
             GameState gameState = game.getGameState();
-            logger.info("Fetching game state for game " + gameId + ": " + gameState.getBoard());
+            if(gameState.getBoardArray()[0][0] == '\0') System.out.println(gameState.getBoardArray()[0][0]);
+            logger.info("Fetching game state for game " + gameId + ": " + gameState.getBoard() + "array" + gameState.getBoardArray());
             return new ResponseEntity<>(GameStateDto.fromEntity(gameState), HttpStatus.OK);
         }
 
@@ -96,10 +96,11 @@ public class GameController {
         playerDTO.setPlayerId(playerId);
 
         Game availableGame = gameServiceImpl.getAvailableGame();
-
+        GameState gameState = new GameState();
         if (availableGame.getPlayerX() == null) {
             availableGame.setPlayerX(playerId);
             playerDTO.setSymbol("X");
+            availableGame.setGameState(gameState);
             gameServiceImpl.saveGame(availableGame);
         } else if (availableGame.getPlayerO() == null) {
             availableGame.setPlayerO(playerId);
