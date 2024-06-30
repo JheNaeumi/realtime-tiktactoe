@@ -1,14 +1,12 @@
 package com.example.TikTacToe.entity;
 
 import jakarta.persistence.*;
-import jakarta.transaction.Transactional;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @Entity
 public class Game {
 
@@ -19,7 +17,7 @@ public class Game {
     private String gameId;
     private String playerX;
     private String playerO;
-
+    private LocalDateTime createdAt;
 
     @OneToOne(   cascade = CascadeType.ALL)
     @JoinColumn(name = "game_state_id", referencedColumnName = "id")
@@ -38,4 +36,5 @@ public class Game {
                 "O wins!".equals(gameState.getStatusMessage()) ||
                 "Draw!".equals(gameState.getStatusMessage());
     }
+
 }
