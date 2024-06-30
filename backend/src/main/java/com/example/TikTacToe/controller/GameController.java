@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -101,6 +102,7 @@ public class GameController {
             availableGame.setPlayerX(playerId);
             playerDTO.setSymbol("X");
             availableGame.setGameState(gameState);
+            availableGame.setCreatedAt(LocalDateTime.now());
             gameServiceImpl.saveGame(availableGame);
         } else if (availableGame.getPlayerO() == null) {
             availableGame.setPlayerO(playerId);
