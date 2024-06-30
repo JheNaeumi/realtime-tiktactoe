@@ -6,12 +6,16 @@ import com.example.TikTacToe.entity.GameState;
 import com.example.TikTacToe.repository.GameRepository;
 import com.example.TikTacToe.service.GameService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@EnableScheduling
 public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
@@ -37,11 +41,13 @@ public class GameServiceImpl implements GameService {
         return gameRepository.findAll();
     }
 
+    @Scheduled(fixedRate = 60000)
     @Override
     public void removeGameIfNotInUse() {
         List<Game> games = gameRepository.findAll();
+        LocalDateTime now = LocalDateTime.now().minusMinutes(10);
         for (Game game : games) {
-            if (game.isCompleted()) {
+            if (now.isAfter(game.getCreatedAt()) ) {
                 gameRepository.delete(game);
             }
         }
@@ -80,4 +86,6 @@ public class GameServiceImpl implements GameService {
         }
         return true;
     }
+
+
 }
