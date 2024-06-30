@@ -4,9 +4,10 @@ package com.example.TikTacToe.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+
 @Entity
-@Table(name="users")
 @Data
+@Table(name="users")
 public class User {
 
     @Id
