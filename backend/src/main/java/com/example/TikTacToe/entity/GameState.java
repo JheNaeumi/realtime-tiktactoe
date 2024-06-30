@@ -1,15 +1,13 @@
 package com.example.TikTacToe.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Entity
-@Setter
-@Getter
+@Data
 public class GameState {
 
     @Id
