@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -43,8 +44,9 @@ public class GameController {
         char player = message.getFrom();
 
 
-        Game game = gameServiceImpl.getGameById(gameId);
-        if (game!=null) {
+        Optional<Game> gameOpt = gameServiceImpl.getGameById(gameId);
+        if (gameOpt.isPresent()) {
+            Game game = gameOpt.get();
             GameState gameState = game.getGameState();
             if ((playerId.equals(game.getPlayerX()) || playerId.equals(game.getPlayerO())) &&
                     (gameState.getBoardArray()[row][col] == '\0') &&
@@ -79,9 +81,9 @@ public class GameController {
     //TODO: Separation of concern put it in Service
     @GetMapping("/api/gameState")
     public ResponseEntity<GameStateDto> getGameState(@RequestParam String gameId) {
-        Game game = gameServiceImpl.getGameById(gameId);
-        if (game!=null) {
-            GameState gameState = game.getGameState();
+        Optional<Game> game = gameServiceImpl.getGameById(gameId);
+        if (game.isPresent()) {
+            GameState gameState = game.get().getGameState();
             if(gameState.getBoardArray()[0][0] == '\0') System.out.println(gameState.getBoardArray()[0][0]);
             logger.info("Fetching game state for game " + gameId + ": " + gameState.getBoard());
             return new ResponseEntity<>(gameStateMapper.toGameStateDto(gameState), HttpStatus.OK);

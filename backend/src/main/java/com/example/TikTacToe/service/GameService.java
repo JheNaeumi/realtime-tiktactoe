@@ -4,12 +4,13 @@ import com.example.TikTacToe.entity.Game;
 import com.example.TikTacToe.entity.GameState;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GameService {
 
     Game getAvailableGame();
 
-    Game getGameById(String gameId);
+    Optional<Game> getGameById(String gameId);
 
     List<Game> getGames();
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +33,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game getGameById(String gameId) {
-        return gameRepository.findByGameId(gameId).orElseThrow(()-> new RuntimeException("error getting gameID"));
+    public Optional<Game> getGameById(String gameId) {
+        return gameRepository.findByGameId(gameId);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void removeGameIfNotInUse() {
         List<Game> games = gameRepository.findAll();
-        LocalDateTime now = LocalDateTime.now().minusMinutes(10);
+        LocalDateTime now = LocalDateTime.now().minusMinutes(2);
         for (Game game : games) {
             if (now.isAfter(game.getCreatedAt()) ) {
                 gameRepository.delete(game);
