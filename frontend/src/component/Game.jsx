@@ -17,22 +17,50 @@ const Game = () => {
     useEffect(() => {
        checkauth();
         if (opponentFound && gameId) {
-            (async () => {
-                try {
-                    await connect(gameId);
-                    onConnected();
-                    await initGameState(gameId);
-                } catch (error) {
-                    console.error('Connection error:', error);
-                }
-            })();
+            connectToInitialGame();
         }
         // Cleanup on unmount
         return () => {
             deactivate();
         };
     }, [opponentFound, gameId]);
-    
+
+    const connectToInitialGame = async () => {
+        try {
+            await connect(gameId);
+            onConnected();
+            await initGameState(gameId);
+        } catch (error) {
+            console.error('Connection error:', error);
+        }
+        setTimeout(()=>{
+            isGameStillPresent();
+        }, 300000)
+    }
+
+    const isGameStillPresent = async (gameId) => {
+        try {
+            const response = await getGameState(gameId);
+            if(response.status !== 200){
+                setShowNotification(true);
+                setTimeout(()=>{
+                    setShowNotification(false);
+                    setOpponentFound(false)
+                    setGameState(null)
+                    deactivate();
+                },4000)
+            }
+        } catch (error) {
+            console.log("Cannot find game" , error);
+            setShowNotification(true);
+                setTimeout(()=>{
+                    setShowNotification(false);
+                    setOpponentFound(false)
+                    setGameState(null)
+                    deactivate();
+                },4000)
+        }
+    }
     const checkauth = async() =>{
         try {
           const response= await loggedIn();
@@ -51,22 +79,15 @@ const Game = () => {
                 const receivedGameState = JSON.parse(message.body);
                 console.log("New game state",receivedGameState);
                 if(receivedGameState.statusCodeValue === 200){
-                setGameState(receivedGameState.body);
-                }else{
-                    setShowNotification(true);
-                    setTimeout(()=>{
-                        setShowNotification(false);
-                        redirect('/')
-                    },4000)
+                    setGameState(receivedGameState.body);
+                }
+                else{
+                    isGameStillPresent();
                 }
             });
         } catch (error) {
             console.log(error);
-            setShowNotification(true);
-                    setTimeout(()=>{
-                        setShowNotification(false);
-                        redirect('/')
-                    },4000)
+            isGameStillPresent();
         }
     }
 
@@ -148,7 +169,7 @@ const Game = () => {
                   
                 </div>
             )}
-            {!gameState && showNotification && (
+            {showNotification && (
                 <div className="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded">
                     {/* {notifMessage} */}
                     Game Does not Exist, Exceeded Playtime. Redirecting...
