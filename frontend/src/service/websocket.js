@@ -1,6 +1,4 @@
 
-
-
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
@@ -8,10 +6,9 @@ let stompClient = null;
 
 /**
  * Connect to the STOMP server.
- * @param {string} gameId - The game ID to connect to.
  * @returns {Promise<void>} A promise that resolves when connected.
  */
-export const connect = (gameId) => {
+export const connect = () => {
     return new Promise((resolve, reject) => {
         const socket = new SockJS('http://localhost:8080/tictactoe');
         stompClient = new Client({
